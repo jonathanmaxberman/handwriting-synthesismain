@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from demo import Hand  # Make sure this import works based on your project structure
 import re
 import xml.etree.ElementTree as ET
+import time
 
 app = Flask(__name__)
 
@@ -36,7 +37,7 @@ def markdown_to_text(md_content):
     return soup.get_text("\n", strip=True)
 
 
-def write_handwriting_from_markdown(md_content, filename, biases, styles):
+def write_handwriting_from_markdown(md_content, filename, biases, styles, left_justify):
     """Generate handwriting from Markdown content."""
     text = markdown_to_text(md_content)
     lines = text.split('\n')
@@ -56,7 +57,8 @@ def write_handwriting_from_markdown(md_content, filename, biases, styles):
         biases=biases,
         styles=styles,
         stroke_colors=stroke_colors,
-        stroke_widths=stroke_widths
+        stroke_widths=stroke_widths,
+        left_justify=left_justify
     )
     remove_initial_m0(filename)
 
@@ -65,6 +67,7 @@ def index():
     image_file = None
     if request.method == 'POST':
         md_content = request.form['md_text']
+        left_justify = 'left_justify' in request.form
         biases = [float(request.form.get('bias', 0.75))]
         styles = [int(request.form.get('style', 9))]
 
@@ -74,8 +77,10 @@ def index():
         styles *= len(lines)
 
         output_file = 'static/handwriting_output.svg'
-        write_handwriting_from_markdown(md_content, output_file, biases, styles)
-        image_file = url_for('static', filename='handwriting_output.svg')
+        write_handwriting_from_markdown(md_content, output_file, biases, styles, left_justify)
+
+        timestamp = int(time.time())
+        image_file = url_for('static', filename='handwriting_output.svg') + f'?v={timestamp}'
 
     return render_template('index.html', image_file=image_file)
 

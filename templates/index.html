@@ -5,6 +5,8 @@
     <title>Handwriting Synthesis</title>
 </head>
 <body>
+<h2>Handwriting Synthesis</h2>
+Enter your multiple line handwriting synthesis to generate an SVG file.
  <form method="post">
     <textarea name="md_text" rows="10" cols="30"></textarea>
     <br>
@@ -12,11 +14,19 @@
     <br>
     Style: <input type="number" name="style" value="9">
     <br>
+     <label>
+        <input type="checkbox" name="left_justify" checked>
+        Left Justify
+    </label>
     <input type="submit" value="Generate Handwriting">
 </form>
 {% if image_file %}
     <h2>Generated Handwriting:</h2>
     <img src="{{ image_file }}" alt="Generated Handwriting" style="max-width:100%;">
+
+    <a href="{{ image_file }}" download="handwritten_output.svg">
+        <button>Download SVG</button>
+    </a>
 {% endif %}
 
 </body>
