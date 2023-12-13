@@ -16,10 +16,10 @@ def write_handwriting_from_markdown(md_content, filename):
     lines = text.split('\n')
 
     # Static parameters for handwriting style
-    bias = 0.5
-    style = 1
+    bias = 0.95
+    style = 32
     stroke_color = 'black'
-    stroke_width = 1
+    stroke_width = 2
 
     hand = Hand()
     hand.write(
@@ -34,10 +34,11 @@ def write_handwriting_from_markdown(md_content, filename):
 
 # Example usage
 markdown_content = """
-Dear Ashley:
-Merry Christmas.
-Love,
-Jonathan
+Take a break 4mg
+one tab   PR q4h
+Disp 30 (thirty)
+
+J Berman 12-13-23
 """
 
-write_handwriting_from_markdown(markdown_content, 'Ashleytextbody.svg')
+write_handwriting_from_markdown(markdown_content, 'script.svg')

@@ -60,7 +60,7 @@ def write_handwriting_from_markdown(md_content, filename, biases, styles, left_j
         stroke_widths=stroke_widths,
         left_justify=left_justify
     )
-    remove_initial_m0(filename)
+    #remove_initial_m0(filename)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -69,7 +69,7 @@ def index():
         md_content = request.form['md_text']
         left_justify = 'left_justify' in request.form
         biases = [float(request.form.get('bias', 0.75))]
-        styles = [int(request.form.get('style', 9))]
+        styles = [int(request.form.get('style', 22))]
 
         # Repeat the bias and style for each line
         lines = md_content.split('\n')
