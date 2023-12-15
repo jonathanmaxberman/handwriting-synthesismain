@@ -3,31 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <title>Handwriting Synthesis</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jSignature/2.1.2/jSignature.min.js"></script>
+    <style>
+        /* Add your custom CSS styles here */
+        #signature {
+            border: 1px solid black;
+            width: 100%;
+            height: 200px;
+        }
+    </style>
 </head>
 <body>
 <h2>Handwriting Synthesis</h2>
-Enter your multiple line handwriting synthesis to generate an SVG file.
- <form method="post">
+Directions:
+<br>
+If you would like to imitate your own handwriting, draw a few words, type those same words in the "priming sequence" box, and press "capture signature."
+<br>
+This will be temporarily saved as style 15.
+<br>
+Otherwise, type the lines your would like written in the box below and select the bias and style.
+<br> Bias is a number between 0 and 1 that determines how close to the most probable strokes the model generates.
+<br> A low bias will be less legible, but high biases will have little variation.
+<br> The styles 1-14 are priming styles pre-captured, to give different handwriting styles to try.
+<br> Press generate handwriting when ready.
+<form method="post">
+    <div id="signature" style="border: 1px solid black;"></div>
+    <br>
+    <button type="button" id="clearSignature">Clear Strokes</button>
+    <button type="button" id="captureSignature">Capture Strokes</button>
+    <br><br>
+    Priming Sequence: <input type="text" name="priming_sequence">
+    <br><br>
     <textarea name="md_text" rows="10" cols="30"></textarea>
     <br>
-    Bias: <input type="number" name="bias" step="0.01" value="0.75">
+    Bias: <input type="number" name="bias" step="0.01" value="0.95">
     <br>
-    Style: <input type="number" name="style" value="22">
+    Style: <input type="number" name="style" value="32">
     <br>
-     <label>
+    <label>
         <input type="checkbox" name="left_justify" checked>
         Left Justify
     </label>
+    <br>
     <input type="submit" value="Generate Handwriting">
 </form>
 {% if image_file %}
     <h2>Generated Handwriting:</h2>
     <img src="{{ image_file }}" alt="Generated Handwriting" style="max-width:100%;">
-
     <a href="{{ image_file }}" download="handwritten_output.svg">
         <button>Download SVG</button>
     </a>
 {% endif %}
 
+<script>
+    $(document).ready(function() {
+        var $sigdiv = $("#signature");
+
+        // Initialize jSignature within the specified div
+        $sigdiv.jSignature();
+
+        // Function to reset the signature
+        function resetSignature() {
+            $sigdiv.jSignature('reset');
+        }
+
+        // Function to capture and display the signature
+        function captureSignature() {
+            var signatureData = $sigdiv.jSignature("getData", "native");
+            var primingSequence = $("input[name='priming_sequence']").val();
+
+            if (signatureData.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/capture_strokes",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        strokes: signatureData,
+                        priming_sequence: primingSequence
+                    }),
+                    success: function(response) {
+                        alert("Signature Captured and Sent!");
+                    },
+                    error: function(error) {
+                        console.log("Error:", error);
+                    }
+                });
+            } else {
+                alert("No signature has been captured.");
+            }
+
+        }
+
+        // Bind the button click events
+        $("#captureSignature").click(captureSignature);
+        $("#clearSignature").click(resetSignature);
+    });
+</script>
 </body>
 </html>

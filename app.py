@@ -1,11 +1,12 @@
-from flask import Flask, request, render_template, url_for
+from flask import Flask, request, render_template, url_for, jsonify
+#import json
 import markdown
 from bs4 import BeautifulSoup
 from demo import Hand  # Make sure this import works based on your project structure
 import re
 import xml.etree.ElementTree as ET
 import time
-
+from StrokestoNPY import handle_draw_data
 app = Flask(__name__)
 
 def remove_initial_m0(svg_path):
@@ -61,6 +62,24 @@ def write_handwriting_from_markdown(md_content, filename, biases, styles, left_j
         left_justify=left_justify
     )
     #remove_initial_m0(filename)
+
+@app.route('/capture_strokes', methods=['POST'])
+def capture_strokes():
+    try:
+        data = request.get_json()
+        print("Received data:", data)  # Print the received data
+        strokes = data['strokes']
+        priming_sequence = data['priming_sequence']
+        print("strokes:", strokes)
+        print("Priming Sequence:", priming_sequence)
+        handle_draw_data(strokes, priming_sequence)
+        return jsonify({'status': 'success'})
+
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
